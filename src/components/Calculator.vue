@@ -54,6 +54,8 @@ export default {
             input: [],
             priorInput: [],
             finalResult : 0,
+            isNum: false,
+            isFunc: false,
             isPlus: [false, '+'],
             isMinus: [false, '-'],
             isMulti: [false, '*'],
@@ -68,6 +70,7 @@ export default {
             this.reset();
             this.input = [];
             this.resetIsNum();
+            this.priorInput = [];
         },
         reset() {
             this.$refs.divide.classList.replace("bg-secondary", "bg-success");
@@ -97,6 +100,7 @@ export default {
         },
         addNum(num) {
             this.isNum = true;
+            this.isFunc = false;
             if (this.isNum) {
                 this.result.push(num);
                 this.isNum = false;
@@ -115,56 +119,75 @@ export default {
             this.input.push(this.tempInput);
             this.tempInput = null;
             this.result = [];
+            this.isFunc = true;
         },
         plus(el) {
+            if (this.isFunc) {
+                this.input.pop();
+            };
             this.doFunc(el);
             if (!(this.isPlus[0] || this.isMinus[0] || this.isMulti[0] || this.isDivide[0])) {
                 this.input.push(this.isPlus[1]);
             } else {
-                this.finalResult = eval(this.input.join(' '));
+                this.finalResult = Function("return " + (this.input.join(' ')))();
                 this.input.push(this.isPlus[1]);
             };
             this.isPlus[0] = true;
         },
         minus(el) {
+            if (this.isFunc) {
+                this.input.pop();
+            };
             this.doFunc(el);
             if (!(this.isPlus[0] || this.isMinus[0] || this.isMulti[0] || this.isDivide[0])) {
                 this.input.push(this.isMinus[1]);
             } else {
-                this.finalResult = eval(this.input.join(' '));
+                this.finalResult = Function("return " + (this.input.join(' ')))();
                 this.input.push(this.isMinus[1]);
             };
             this.isMinus[0] = true;
+
         },
         multi(el) {
-            console.log(this.tempInput);
+            if (this.isFunc) {
+                this.input.pop();
+                this.tempInput = +this.input[this.input.length - 1];
+                this.input.pop();
+            };
             this.priorInput.push(this.tempInput);
             this.doFunc(el);
             if (!(this.isPlus[0] || this.isMinus[0] || this.isMulti[0] || this.isDivide[0])) {
                 this.input.push(this.isMulti[1]);
             } else {
-                this.finalResult = eval(this.priorInput.join(' '));
+                this.finalResult = Function("return " + (this.priorInput.join(' ')))();
                 this.input.push(this.isMulti[1]);
+                this.priorInput.push(this.isMulti[1]);
             };
             this.isMulti[0] = true;
         },
         divide(el) {
+            if (this.isFunc) {
+                this.input.pop();
+                this.tempInput = +this.input[this.input.length - 1];
+                this.input.pop();
+            };  
             this.priorInput.push(this.tempInput);
             this.doFunc(el);
             if (!(this.isPlus[0] || this.isMinus[0] || this.isMulti[0] || this.isDivide[0])) {
                 this.input.push(this.isDivide[1]);
             } else {
-                this.finalResult = eval(this.priorInput.join(' '));
+
+                this.finalResult = Function("return " + (this.priorInput.join(' ')))();
                 this.input.push(this.isDivide[1]);
             };
             this.isDivide[0] = true;
         },
         equal() {
             this.input.push(this.tempInput);
-            this.finalResult = eval(this.input.join(' '));
+            this.finalResult = Function("return " + (this.input.join(' ')))();
             this.result= [];
             this.reset();
-            this.input = [];
+            this.input = [this.finalResult];
             this.resetIsNum();
             this.tempInput = null;
         },
