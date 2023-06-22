@@ -1,0 +1,62 @@
+@import '../../node_modules/bootstrap/scss/functions';
+
+@import '~bootstrap/scss/variables.scss';
+@import '~bootstrap/scss/functions.scss';
+
+$success: #3CAA78;
+$info: #81D1AD;
+$secondary: #A1A1A1;
+$gray-100: #B9B9B9;
+$light: #DDDDDD;
+
+$theme-colors: map-merge($theme-colors, (
+    "success": $success,
+    "info": $info,
+    "secondary": $secondary,
+    "gray-100": $gray-100,
+    "light": $light,
+));
+
+@import '~bootstrap/scss/bootstrap.scss';
+
+
+.calculator-wrapper {
+    background-color: $info;
+    width: 100vw;
+    height: 100vh;
+    padding-top: 100px;
+
+    .container {
+        width: 240px;
+
+        .row {
+            height: 60px;
+            .col-3,
+            .col-6 {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 1.5rem;
+                transition: all 0.1s linear;
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+            
+            &.result {
+                display: flex;
+                align-items: center;
+                justify-content: right;
+                font-size: 2.3rem;
+                overflow: hidden;
+
+                input {
+                    caret-color: transparent !important;
+                    font-weight: bolder;
+                }
+            }
+        }
+    }
+}
