@@ -45,7 +45,8 @@ $theme-colors: map-merge($theme-colors, (
                         cursor: pointer;
                     }
 
-                    &.bg-gray-100 {
+                    &.bg-gray-100,
+                    &.bg-secondary {
                         &:active {
                             background-color: whitesmoke !important;
                         }
@@ -53,7 +54,7 @@ $theme-colors: map-merge($theme-colors, (
 
                     &.equal {
                         &:active {
-                            background-color: $gray-100 !important;
+                            background-color: $light !important;
                         }
                     }
                 }

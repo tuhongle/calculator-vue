@@ -80,18 +80,18 @@
             }
           },
           reset() {
-              this.$refs.divide.classList.replace("bg-secondary", "bg-success");
+              this.$refs.divide.classList.replace("bg-light", "bg-success");
               this.$refs.divide.classList.remove("text-success");
-              this.$refs.multi.classList.replace("bg-secondary", "bg-success");
+              this.$refs.multi.classList.replace("bg-light", "bg-success");
               this.$refs.multi.classList.remove("text-success");
-              this.$refs.minus.classList.replace("bg-secondary", "bg-success");
+              this.$refs.minus.classList.replace("bg-light", "bg-success");
               this.$refs.minus.classList.remove("text-success");
-              this.$refs.plus.classList.replace("bg-secondary", "bg-success");
+              this.$refs.plus.classList.replace("bg-light", "bg-success");
               this.$refs.plus.classList.remove("text-success");
           },
           toggle(el) {
               el.target.classList.toggle("bg-success");
-              el.target.classList.toggle("bg-secondary");
+              el.target.classList.toggle("bg-light");
               el.target.classList.toggle("text-success");
           },
           backspace() {
@@ -227,18 +227,18 @@
               console.log("priorInput:", this.priorInput);
           },
           equal() {
-              this.input.push(this.tempInput);
-              if (this.input[this.input.length - 2] === '+') {
-                this.finalResult *= 2;
-              } else if (this.input[this.input.length - 2] === '-') {
-                this.finalResult = 0;
-              } else if (this.input[this.input.length - 2] === '*') {
-                this.finalResult = Math.pow(this.finalResult, 2);
-              } else if (this.input[this.input.length - 2] === '/') {
-                this.finalResult = 1;
-              } else {
+              if (this.input[this.input.length - 1] === '+' && !(this.tempInput)) {
+                  this.finalResult *= 2;
+                } else if (this.input[this.input.length - 1] === '-' && !(this.tempInput)) {
+                    this.finalResult = 0;
+                } else if (this.input[this.input.length - 1] === '*' && !(this.tempInput)) {
+                    this.finalResult = Math.pow(this.finalResult, 2);
+                } else if (this.input[this.input.length - 1] === '/' && !(this.tempInput)) {
+                    this.finalResult = 1;
+                } else {
+                    this.input.push(this.tempInput);
                     this.finalResult = Function("return " + (this.input.join(' ')))();
-              };
+                };
               this.result= [];
               this.reset();
               this.input = [this.finalResult];
