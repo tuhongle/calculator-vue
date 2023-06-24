@@ -3,11 +3,9 @@
 </template>
 
 <script>
-import {mask} from 'vue-the-mask'
 
 export default {
     name: 'OutputResult',
-    directives: {mask},
     props: ['output'],
     data() {
         return {

@@ -122,27 +122,28 @@
               if (this.isNum) {
                   this.result.push(num);
                   this.isNum = false;
-                  if (this.result[0] === 0 && this.input.length <= 1) {
+                  if (this.result[0] === 0 && this.result.length <=1 && this.input.length <= 1) {
                     this.result.shift();
                     this.finalResult = 0;
-                    console.log('1', this.result, this.finalResult);
+
                   } else if (this.result[0] === '.') {
                     this.result.unshift(0);
                     this.finalResult = this.result.join('');
                     this.tempInput = +this.result.join('');
-                    console.log('2', this.result, this.finalResult);
+
                   } else {
                     this.tempInput = +this.result.join('');
                     this.finalResult = this.tempInput;
-                    console.log('3', this.result, this.finalResult);
+
                   }       
               };
-              console.log(this.tempInput);
           },
           doFunc(el) {
               this.reset();
               this.toggle(el);
-              this.input.push(this.tempInput);
+              if (this.tempInput) {
+                this.input.push(this.tempInput);
+              }
               this.tempInput = null;
               this.result = [];
               this.isFunc = true;
@@ -163,8 +164,9 @@
                   this.finalResult = Function("return " + (this.input.join(' ')))();
                   this.input.push(this.isPlus);
               };
-              console.log(this.input);
               this.isFunc = true;
+              this.isPriorFunc = false;
+              this.isEqual = false;
               this.notInteger();
           },
           minus(el) {
@@ -184,10 +186,11 @@
                   this.input.push(this.isMinus);
               };
               this.isFunc = true;
+              this.isPriorFunc = false;
+              this.isEqual = false;
               this.notInteger();
           },
           multi(el) {
-            console.log("multi", this.priorInput); // test
               if (this.isFunc) {
                   this.input.pop();
                   this.tempInput = +this.input[this.input.length - 1];
@@ -197,8 +200,10 @@
                 this.priorInput.pop();
                 this.priorInput.pop();
               };
+              if (this.isEqual) {
+                this.priorInput=[this.finalResult];
+              }
               this.priorInput.push(this.tempInput);
-              console.log("multi", this.priorInput); // test
               this.doFunc(el);
               if (!(this.isFunc || this.isPriorFunc)) {
                   this.input.push(this.isMulti);
@@ -209,10 +214,8 @@
                   this.priorInput.push(this.isMulti);
               };
               this.isPriorFunc = true;
+              this.isEqual = false;
               this.notInteger();
-              console.log(this.isPriorFunc);
-              console.log("input:", this.input);
-              console.log("priorInput:", this.priorInput);
           },
           divide(el) {
               if (this.isFunc) {
@@ -224,6 +227,9 @@
                 this.priorInput.pop();
                 this.priorInput.pop();
               };
+              if (this.isEqual) {
+                this.priorInput=[this.finalResult];
+              }
               this.priorInput.push(this.tempInput);
               this.doFunc(el);
               if (!(this.isFunc || this.isPriorFunc)) {
@@ -235,9 +241,8 @@
                   this.priorInput.push(this.isDivide);
               };
               this.isPriorFunc = true;
+              this.isEqual = false;
               this.notInteger();
-              console.log("input:", this.input);
-              console.log("priorInput:", this.priorInput);
           },
           equal() {
               if (this.input[this.input.length - 1] === '+' && (this.tempInput === null)) {
@@ -246,12 +251,10 @@
                     this.finalResult = 0;
                 } else if (this.input[this.input.length - 1] === '*' && (this.tempInput === null)) {
                     this.finalResult = Math.pow(this.finalResult, 2);
-                } else if (this.input[this.input.length - 1] === '/') {
-                    if (this.tempInput === null) {
+                } else if (this.input[this.input.length - 1] === '/' && (this.tempInput === null)) {
                         this.finalResult = 1;
-                    } else if (this.tempInput === 0) {
+                } else if (this.input[this.input.length - 1] === '/' && (this.tempInput === 0)) {
                         this.finalResult = "ERROR";
-                    }
                 } else {
                     this.input.push(this.tempInput);
                     this.finalResult = Function("return " + (this.input.join(' ')))();
@@ -265,10 +268,9 @@
                 this.input = [];
               }
               this.isFunc = false;
+              this.isPriorFunc = false;
               this.isEqual = true;
               this.tempInput = null;
-              console.log(this.input);
-              console.log("priorInput:", this.priorInput);
           },
       },
   }
