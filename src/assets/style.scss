@@ -20,6 +20,7 @@ $theme-colors: map-merge($theme-colors, (
 @import '~bootstrap/scss/bootstrap.scss';
 
 .calculator-wrapper {
+    position: fixed;
     background-color: $info;
     width: 100vw;
     height: 100vh;
@@ -27,9 +28,14 @@ $theme-colors: map-merge($theme-colors, (
 
     .container {
         width: 240px;
+        position: fixed;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
 
         .row {
             height: 60px;
+
             .col-3,
             .col-6 {
                 button {
@@ -71,6 +77,16 @@ $theme-colors: map-merge($theme-colors, (
                     caret-color: transparent !important;
                     font-weight: bolder;
                     cursor: none;
+
+                    &::-webkit-outer-spin-button,
+                    &::-webkit-inner-spin-button {
+                        -webkit-appearance: none;
+                        margin: 0;
+                    }
+
+                    &[type='number'] {
+                        -moz-appearance: textfield;
+                    }
                 }
             }
         }

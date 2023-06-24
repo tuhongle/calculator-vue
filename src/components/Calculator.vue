@@ -2,7 +2,7 @@
     <div class="calculator-wrapper">
       <div class="container border border-3 border-dark shadow-lg">
           <div class="row bg-light result">
-              <input type="number" v-model="finalResult" class="text-end" @click="backspace">
+              <OutputResult :output="finalResult" @back="backspace"/>
           </div>
           <div class="row">
               <div class="col-3 p-0" @click="clearResult">
@@ -43,11 +43,11 @@
   </template>
   
   <script>
-  import {mask} from 'vue-the-mask'
+  import OutputResult from './Output.vue'
   
   export default {
       name: "Calculator",
-      directives: {mask},
+      components: {OutputResult},
       data() {
           return {
               result : [],
@@ -61,6 +61,7 @@
               isMinus: '-',
               isMulti: '*',
               isDivide: '/',
+              isEqual: false,
               tempInput: null,
           }
       },
@@ -111,20 +112,32 @@
               if (!this.isPriorFunc) {
                 this.priorInput = [];
               };
+              if (this.isEqual) {
+                this.input = [];
+              };
               this.isNum = true;
               this.isFunc = false;
               this.isPriorFunc = false;
+              this.isEqual = false;
               if (this.isNum) {
                   this.result.push(num);
                   this.isNum = false;
-                  if (this.result[0] === 0) {
-                      this.result.shift();
-                      this.finalResult = 0;
+                  if (this.result[0] === 0 && this.input.length <= 1) {
+                    this.result.shift();
+                    this.finalResult = 0;
+                    console.log('1', this.result, this.finalResult);
+                  } else if (this.result[0] === '.') {
+                    this.result.unshift(0);
+                    this.finalResult = this.result.join('');
+                    this.tempInput = +this.result.join('');
+                    console.log('2', this.result, this.finalResult);
                   } else {
-                      this.tempInput = +this.result.join('');
-                      this.finalResult = this.tempInput;
+                    this.tempInput = +this.result.join('');
+                    this.finalResult = this.tempInput;
+                    console.log('3', this.result, this.finalResult);
                   }       
               };
+              console.log(this.tempInput);
           },
           doFunc(el) {
               this.reset();
@@ -227,25 +240,35 @@
               console.log("priorInput:", this.priorInput);
           },
           equal() {
-              if (this.input[this.input.length - 1] === '+' && !(this.tempInput)) {
+              if (this.input[this.input.length - 1] === '+' && (this.tempInput === null)) {
                   this.finalResult *= 2;
-                } else if (this.input[this.input.length - 1] === '-' && !(this.tempInput)) {
+                } else if (this.input[this.input.length - 1] === '-' && (this.tempInput === null)) {
                     this.finalResult = 0;
-                } else if (this.input[this.input.length - 1] === '*' && !(this.tempInput)) {
+                } else if (this.input[this.input.length - 1] === '*' && (this.tempInput === null)) {
                     this.finalResult = Math.pow(this.finalResult, 2);
-                } else if (this.input[this.input.length - 1] === '/' && !(this.tempInput)) {
-                    this.finalResult = 1;
+                } else if (this.input[this.input.length - 1] === '/') {
+                    if (this.tempInput === null) {
+                        this.finalResult = 1;
+                    } else if (this.tempInput === 0) {
+                        this.finalResult = "ERROR";
+                    }
                 } else {
                     this.input.push(this.tempInput);
                     this.finalResult = Function("return " + (this.input.join(' ')))();
                 };
               this.result= [];
               this.reset();
-              this.input = [this.finalResult];
+              if (typeof this.finalResult === 'number') {         
+                  this.input = [this.finalResult];
+                  this.notInteger();
+              } else {
+                this.input = [];
+              }
               this.isFunc = false;
+              this.isEqual = true;
               this.tempInput = null;
-              this.notInteger();
               console.log(this.input);
+              console.log("priorInput:", this.priorInput);
           },
       },
   }
