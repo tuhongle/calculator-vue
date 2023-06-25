@@ -121,21 +121,23 @@
               this.isEqual = false;
               if (this.isNum) {
                   this.result.push(num);
-                  this.isNum = false;
                   if (this.result[0] === 0 && this.result.length <=1 && this.input.length <= 1) {
                     this.result.shift();
                     this.finalResult = 0;
-
                   } else if (this.result[0] === '.') {
                     this.result.unshift(0);
                     this.finalResult = this.result.join('');
                     this.tempInput = +this.result.join('');
-
-                  } else {
+                    console.log('2', this.tempInput);
+                  } else if (this.result[this.result.length - 1] === '.' && this.result[this.result.length - 2] === '.') {
+                    this.result.pop();
+                  } 
+                    else {
                     this.tempInput = +this.result.join('');
                     this.finalResult = this.tempInput;
-
-                  }       
+                    console.log(this.tempInput)
+                  };
+                  this.isNum = false;
               };
           },
           doFunc(el) {
