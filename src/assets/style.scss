@@ -42,12 +42,16 @@ $grid-gutter-width: 1.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.5rem;
+                font-size: 2rem;
                 transition: all 0.1s linear;
                 border: none !important;
                 outline: none !important;
                 aspect-ratio: 1 / 1;
                 border-radius: 50%;
+
+                > * {
+                    pointer-events: none;
+                }
 
                 &.long {
                     width: 200%;
@@ -79,7 +83,7 @@ $grid-gutter-width: 1.5rem;
                 }
             }
             
-            &.result {
+            .result {
                 display: flex;
                 align-items: center;
                 font-size: 3rem !important;
@@ -88,6 +92,8 @@ $grid-gutter-width: 1.5rem;
                 input {
                     caret-color: transparent !important;
                     font-weight: bolder;
+                    border: none;
+                    outline: none;
                     cursor: none;
                 }
             }

@@ -18,7 +18,6 @@ import { fa0, fa1, fa2, fa3, fa4, fa5, fa6, fa7, fa8, fa9, faDivide, faEquals, f
 /* add icons to the library */
 library.add(faUserSecret, faDivide, faXmark
     , faMinus, faPlus, faEquals, faPercent
-    , fa0, fa1, fa2, fa3, fa4, fa5, fa6, fa7, fa8, fa9
 )
 
 app.use(createPinia())
