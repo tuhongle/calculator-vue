@@ -5,6 +5,7 @@ export const useCalcStore = defineStore('calculator', () => {
     const finalResult = ref<string>('0');
     const isFinalResult = ref<boolean>(false);
     const isPrevOperator = ref<boolean>(false);
+    const equalClicked = ref<boolean>(false);
     const currentAction = ref<string>();
     const operator = ref();
     const currentValue = ref<string>('0');
@@ -14,13 +15,13 @@ export const useCalcStore = defineStore('calculator', () => {
     const operatorExp = ref<string>('');
 
     const currentInput = computed(() => {
-        return (+currentValue.value).toLocaleString();
+        return currentValue.value.toLocaleString();
     })
 
     const finalInput = computed(() => {
         if (finalResult.value === 'Error') return "Error";
         if (!Number.isInteger(+finalResult.value)) return finalResult.value.slice(0, 11);
-        return (+finalResult.value).toLocaleString();
+        return finalResult.value.toLocaleString();
     })
     
     const trackAction = (el : MouseEvent) => {
@@ -51,7 +52,7 @@ export const useCalcStore = defineStore('calculator', () => {
                     } else {
                         // calculate number 1
                         if (isStillNum1.value) {
-                            if (finalResult.value === '0') {
+                            if (!equalClicked.value) {
                                 // begin of calc express
                                 operatorExp.value += currentValue.value;
                                 num1.value = Function(`return (${operatorExp.value})`)();
@@ -101,11 +102,20 @@ export const useCalcStore = defineStore('calculator', () => {
                             break;
                         case 'negative':
                             isFinalResult.value = false;
-                            if (currentValue.value.charAt(0) === '-') {
-                                currentValue.value = currentValue.value.substring(1);
+                            if (equalClicked.value) {   
+                                if (finalResult.value.charAt(0) === '-') {
+                                    currentValue.value = finalResult.value.substring(1);
+                                } else {
+                                    currentValue.value = '-'+finalResult.value;
+                                }
+                                equalClicked.value = false;
                             } else {
-                                currentValue.value = '-'+currentValue.value;
-                            }
+                                if (currentValue.value.charAt(0) === '-') {
+                                    currentValue.value = currentValue.value.substring(1);
+                                } else {
+                                    currentValue.value = '-'+currentValue.value;
+                                }
+                            };
                             break;
                         case 'decimal':
                             isFinalResult.value = false;
@@ -117,14 +127,20 @@ export const useCalcStore = defineStore('calculator', () => {
                             break;
                         case 'percent':
                             isFinalResult.value = false;
-                            if (isPrevOperator.value) {
-                                currentValue.value = (num1.value!/100).toString();
+                            if (!equalClicked.value) {
+                                if (isPrevOperator.value) {
+                                    currentValue.value = (num1.value!/100).toString();
+                                } else {
+                                    currentValue.value = (+currentValue.value/100).toString();
+                                };
+                                isPrevOperator.value = false;
                             } else {
-                                currentValue.value = (+currentValue.value/100).toString();
-                            };
-                            isPrevOperator.value = false;
+                                currentValue.value = (+finalResult.value/100).toString();
+                                equalClicked.value = false;
+                            }
                             break;
                         case 'equal':
+                            equalClicked.value = true;
                             if (!num2.value) {
                                 num2.value = +currentValue.value;
                             } else {
@@ -140,6 +156,7 @@ export const useCalcStore = defineStore('calculator', () => {
                 // Press number
                 isPrevOperator.value = false;
                 isFinalResult.value = false;
+                equalClicked.value = false;
                 const number : string = (el.target as HTMLElement).textContent!;
                 if (currentValue.value === '0') {
                     currentValue.value = number;
