@@ -3,9 +3,9 @@
     <div class="container-fluid d-flex bg-dark p-4 shadow-lg rounded-4">
         <div class="row h-100">
             <div class="mt-auto" @click="calcStore.trackAction($event)">
-                <div class="col mb-4 result">
+                <div class="col mb-4" id="result">
                     <input v-if="isFinalResult" type="text" v-model="finalInput" class="w-100 display-2 border-0 text-end bg-transparent text-white">
-                    <input v-else type="text" v-model="currentInput" class="w-100 display-2 border-0 text-end bg-transparent text-white">
+                    <input v-else type="text" v-model="currentInput" id="valueInput" class="w-100 display-2 border-0 text-end bg-transparent text-white">
                 </div>
                 <!-- 1st line -->                           
                 <div class="col d-flex gap-3 justify-content-between mb-3">

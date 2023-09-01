@@ -18,6 +18,8 @@ export const useCalcStore = defineStore('calculator', () => {
     })
 
     const finalInput = computed(() => {
+        if (finalResult.value === 'Error') return "Error";
+        if (!Number.isInteger(+finalResult.value)) return finalResult.value.slice(0, 11);
         return (+finalResult.value).toLocaleString();
     })
     
@@ -41,21 +43,31 @@ export const useCalcStore = defineStore('calculator', () => {
                             break;
                     };
                     const priorAction : boolean = (action === 'multiply' || action === 'divide') ? true : false;
+                    // check if miss press action
                     if (isPrevOperator.value) {
                         operatorExp.value = operatorExp.value.slice(0, -1);
                         operatorExp.value += operator.value;
+                        currentAction.value = action;
                     } else {
+                        // calculate number 1
                         if (isStillNum1.value) {
-                            operatorExp.value += currentValue.value;
-                            num1.value = Function(`return (${operatorExp.value})`)();
-                            finalResult.value = num1.value!.toString();
-                            currentValue.value = '0';
-                            isStillNum1.value = priorAction;
-                            if (isStillNum1.value) {
-                                operatorExp.value += operator.value;
+                            if (finalResult.value === '0') {
+                                // begin of calc express
+                                operatorExp.value += currentValue.value;
+                                num1.value = Function(`return (${operatorExp.value})`)();
+                                finalResult.value = num1.value!.toString();
+                                currentValue.value = '0';
+                            } else {
+                                // check after press '='
+                                num1.value = +finalResult.value;
                             }
-                            currentAction.value = action;
+                                isStillNum1.value = priorAction;
+                                if (isStillNum1.value) {
+                                    operatorExp.value += operator.value;
+                                }
+                                currentAction.value = action;
                         } else {
+                            // calculate number 2
                             if (!num2.value) {
                                 operatorExp.value = '';
                             };
@@ -125,6 +137,7 @@ export const useCalcStore = defineStore('calculator', () => {
                     }
                 };
             } else {
+                // Press number
                 isPrevOperator.value = false;
                 isFinalResult.value = false;
                 const number : string = (el.target as HTMLElement).textContent!;
@@ -137,7 +150,7 @@ export const useCalcStore = defineStore('calculator', () => {
                 };
                 currentValue.value = currentValue.value.slice(0,9);
             }
-        } else if ((el.target as HTMLElement).matches('input')) {
+        } else if ((el.target as HTMLElement).matches('#valueInput')) {
             currentValue.value = currentValue.value.slice(0, -1);
         }
     }
