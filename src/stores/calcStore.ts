@@ -1,15 +1,26 @@
-import { ref, watchEffect } from "vue";
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 
 export const useCalcStore = defineStore('calculator', () => {
     const finalResult = ref<string>('0');
-    const operatorKey = ref<boolean>(false);
+    const isFinalResult = ref<boolean>(false);
+    const isPrevOperator = ref<boolean>(false);
+    const currentAction = ref<string>();
     const operator = ref();
-    const prevKey = ref<string>();
-    const currentValue = ref<string>('');
-    const expressionFunc = ref<string>('0');
-    
+    const currentValue = ref<string>('0');
+    const num1 = ref<number | undefined>(undefined);
+    const num2 = ref<number | undefined>(undefined);
+    const isStillNum1 = ref<boolean>(true);
+    const operatorExp = ref<string>('');
 
+    const currentInput = computed(() => {
+        return (+currentValue.value).toLocaleString();
+    })
+
+    const finalInput = computed(() => {
+        return (+finalResult.value).toLocaleString();
+    })
+    
     const trackAction = (el : MouseEvent) => {
         if ((el.target as Element).matches('button')) {
             const action = (el.target as HTMLElement).dataset.action;
@@ -29,61 +40,136 @@ export const useCalcStore = defineStore('calculator', () => {
                             operator.value = '/';
                             break;
                     };
-                    if (!operatorKey.value) {
-                        if (!currentValue.value) {
-                            expressionFunc.value = '0'.concat(operator.value);
-                        } else {
-                            expressionFunc.value = currentValue.value.concat(operator.value);
-                        }
+                    const priorAction : boolean = (action === 'multiply' || action === 'divide') ? true : false;
+                    if (isPrevOperator.value) {
+                        operatorExp.value = operatorExp.value.slice(0, -1);
+                        operatorExp.value += operator.value;
                     } else {
-                        expressionFunc.value += currentValue.value;
-                        finalResult.value = calculator(expressionFunc.value);
-                    }
-                    operatorKey.value = true;
-                    currentValue.value = '';
+                        if (isStillNum1.value) {
+                            operatorExp.value += currentValue.value;
+                            num1.value = Function(`return (${operatorExp.value})`)();
+                            finalResult.value = num1.value!.toString();
+                            currentValue.value = '0';
+                            isStillNum1.value = priorAction;
+                            if (isStillNum1.value) {
+                                operatorExp.value += operator.value;
+                            }
+                            currentAction.value = action;
+                        } else {
+                            if (!num2.value) {
+                                operatorExp.value = '';
+                            };
+                            operatorExp.value += currentValue.value;
+                            num2.value = Function(`return (${operatorExp.value})`)();
+                            finalResult.value = num2.value!.toString();
+                            currentValue.value = '0';
+                            if (priorAction) {
+                                operatorExp.value += operator.value;
+                            } else {
+                                num1.value = +calculator(num1.value!, currentAction.value!, num2.value!)!;
+                                finalResult.value = num1.value.toString();
+                                num2.value = undefined;
+                                currentAction.value = action;
+                            }
+                        };
+                    };
+                    isPrevOperator.value = true;
+                    isFinalResult.value = true;
                 } else {
                     switch (action) {
                         case 'clear':
-                            console.log('clear');
+                            if (currentValue.value !== '0') {
+                                isFinalResult.value = false;
+                                currentValue.value = '0';
+                            } else {
+                                finalResult.value = '0';
+                                isFinalResult.value = false;
+                                $reset();
+                            }
                             break;
                         case 'negative':
-                            console.log('negative');
+                            isFinalResult.value = false;
+                            if (currentValue.value.charAt(0) === '-') {
+                                currentValue.value = currentValue.value.substring(1);
+                            } else {
+                                currentValue.value = '-'+currentValue.value;
+                            }
                             break;
                         case 'decimal':
-                            console.log('decimal');
+                            isFinalResult.value = false;
+                            if (currentValue.value.includes('.')) {
+                                currentValue.value = '0.'
+                            } else {
+                                currentValue.value += '.';
+                            }
                             break;
                         case 'percent':
-                            console.log('percent');
+                            isFinalResult.value = false;
+                            if (isPrevOperator.value) {
+                                currentValue.value = (num1.value!/100).toString();
+                            } else {
+                                currentValue.value = (+currentValue.value/100).toString();
+                            };
+                            isPrevOperator.value = false;
                             break;
                         case 'equal':
-                            finalResult.value = calculator(expressionFunc.value);
+                            if (!num2.value) {
+                                num2.value = +currentValue.value;
+                            } else {
+                                operatorExp.value += currentValue.value;
+                                num2.value = Function(`return (${operatorExp.value})`)();
+                            };
+                            finalResult.value = calculator(num1.value!, currentAction.value!, num2.value!)!;
+                            $reset();
                             break;
                     }
                 };
             } else {
+                isPrevOperator.value = false;
+                isFinalResult.value = false;
                 const number : string = (el.target as HTMLElement).textContent!;
-                currentValue.value += number;
-                finalResult.value = currentValue.value;
+                if (currentValue.value === '0') {
+                    currentValue.value = number;
+                } else if (currentValue.value === '-0') {
+                    currentValue.value = '-'+number;
+                } else {
+                    currentValue.value += number;
+                };
+                currentValue.value = currentValue.value.slice(0,9);
             }
+        } else if ((el.target as HTMLElement).matches('input')) {
+            currentValue.value = currentValue.value.slice(0, -1);
         }
     }
 
-    const calculator = (data: string) => {
-        return Function(`return (${data})`)();
+    const calculator = (n1: number, action : string, n2:number) => {
+        isFinalResult.value = true;
+        switch (action) {
+            case "add":
+                return (n1 + n2).toString();
+            case "subtract":
+                return (n1 - n2).toString();
+            case "multiply":
+                return (n1 * n2).toString();
+            case "divide":
+                if ((n1 / n2).toString() === 'Infinity') {
+                    return 'Error';
+                } else {
+                    return (n1 / n2).toString();
+                }
+        };
     }
 
     const $reset = () => {
-        finalResult.value = '0';
         currentValue.value = '0';
-        operatorKey.value = false;
+        isStillNum1.value = true;
         operator.value = '';
-        prevKey.value = '';
-        expressionFunc.value = '0';
+        currentAction.value = '';
+        operatorExp.value = '';
+        isPrevOperator.value = false;
+        num1.value = undefined;
+        num2.value = undefined;
     }
 
-    watchEffect(() => {
-        console.log(expressionFunc.value);
-    })
-
-    return { finalResult, currentValue, trackAction }
+    return { finalInput, currentInput, isFinalResult, trackAction }
 })

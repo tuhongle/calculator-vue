@@ -4,19 +4,20 @@
         <div class="row h-100">
             <div class="mt-auto" @click="calcStore.trackAction($event)">
                 <div class="col mb-4 result">
-                    <input type="tel" v-model="finalResult" class="w-100 display-2 border-0 text-end bg-transparent text-white" @click="calcStore.backspace">
+                    <input v-if="isFinalResult" type="text" v-model="finalInput" class="w-100 display-2 border-0 text-end bg-transparent text-white">
+                    <input v-else type="text" v-model="currentInput" class="w-100 display-2 border-0 text-end bg-transparent text-white">
                 </div>
-                <!-- 1st line -->
+                <!-- 1st line -->                           
                 <div class="col d-flex gap-3 justify-content-between mb-3">
                     <button class="bg-secondary text-dark fw-medium w-100" data-action="clear">
-                        <span v-if="!currentValue">AC</span>
+                        <span v-if="currentInput === '0'">AC</span>
                         <span v-else>C</span>
                     </button>
                     <button class="bg-secondary text-dark fw-medium w-100" data-action="negative">+/-</button>
                     <button class="bg-secondary text-dark fw-medium w-100" data-action="percent">
                         <font-awesome-icon :icon="['fas', 'percent']" />
                     </button>
-                    <button class="bg-danger w-100" data-action="divide">
+                    <button class="function bg-danger w-100" data-action="divide">
                         <font-awesome-icon icon="fa-solid fa-divide" />
                     </button>
                 </div>
@@ -25,7 +26,7 @@
                     <button class="bg-gray-100 text-white w-100">7</button>
                     <button class="bg-gray-100 text-white w-100">8</button>
                     <button class="bg-gray-100 text-white w-100">9</button>
-                    <button class="bg-danger w-100" data-action="multiply">
+                    <button class="function bg-danger w-100" data-action="multiply">
                         <font-awesome-icon icon="fa-solid fa-xmark" />
                     </button>
                 </div>
@@ -34,7 +35,7 @@
                     <button class="bg-gray-100 text-white w-100">4</button>
                     <button class="bg-gray-100 text-white w-100">5</button>
                     <button class="bg-gray-100 text-white w-100">6</button>
-                    <button class="bg-danger w-100" data-action="subtract">
+                    <button class="function bg-danger w-100" data-action="subtract">
                         <font-awesome-icon icon="fa-solid fa-minus" />
                     </button>
                 </div>
@@ -43,7 +44,7 @@
                     <button class="bg-gray-100 text-white w-100">1</button>
                     <button class="bg-gray-100 text-white w-100">2</button>
                     <button class="bg-gray-100 text-white w-100">3</button>
-                    <button class="bg-danger w-100" data-action="add">
+                    <button class="function bg-danger w-100" data-action="add">
                         <font-awesome-icon :icon="['fas', 'plus']" />
                     </button>
                 </div>
@@ -67,6 +68,6 @@ import { useCalcStore } from '../stores/calcStore'
 
 const calcStore = useCalcStore();
 
-const { finalResult, currentValue } = storeToRefs(calcStore);
+const { finalInput, currentInput, isFinalResult } = storeToRefs(calcStore);
 
 </script>
